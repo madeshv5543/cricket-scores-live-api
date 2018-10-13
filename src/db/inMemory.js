@@ -7,13 +7,13 @@ const inMemoryDb = () => {
 
     const add = (match, callback) => {
         const id = uuid();
-        const matchWithId = { ...match, id, _id: id };
+        const matchWithId = { ...match, id };
         matches.push(matchWithId);
         callback(undefined, matchWithId);
     };
 
-    const update = (match, callback) => {
-        const matchToUpdate = findMatch(match.id);
+    const update = (id, match, callback) => {
+        const matchToUpdate = findMatch(id);
         if (typeof matchToUpdate === 'undefined') {
             callback(new Error('notfound'), undefined);
         } else {

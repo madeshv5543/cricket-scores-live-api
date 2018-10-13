@@ -30,8 +30,8 @@ export default (app, db) => {
         });
     });
 
-    app.put('/match', (req, res) => {
-        db.update(req.body, (err, result) => {
+    app.put('/match/:id', (req, res) => {
+        db.update(req.params.id, req.body, (err, result) => {
             if (typeof err !== 'undefined') {
                 handleError(err, req, res);
             } else {
