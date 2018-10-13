@@ -10,7 +10,8 @@
     "prebuild": "npm-run-all clean-dist lint",
     "build": "babel src --out-dir dist",
     "serve": "node dist/server.js",
-    "lint": "node_modules/.bin/esw src --ext .js"
+    "lint": "node_modules/.bin/esw src --ext .js",
+    "heroku-postbuild": "npm-run-all clean-dist build"
   },
   "repository": {
     "type": "git",
