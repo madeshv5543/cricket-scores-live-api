@@ -1,10 +1,11 @@
-const express = require('express');
+import express from 'express';
+import routes from './app/routes';
 
 const app = express();
 
 const port = process.env.PORT || 8000;
 
-require('./app/routes')(app, {});
+routes(app, {});
 
 app.listen(port, () => {
     /* eslint-disable no-console */

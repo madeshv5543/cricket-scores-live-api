@@ -1,5 +1,9 @@
 /* eslint-disable no-unused-vars */
-module.exports = (app, db) => {
+export default (app, db) => {
+    app.get('/match/:id', (req, res) => {
+        res.send(`getting match ${req.params.id}`);
+    });
+
     app.get('/match', (req, res) => {
         res.send('getting matches');
     });
