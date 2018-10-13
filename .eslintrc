@@ -16,8 +16,7 @@
     },
     "rules": {
         "linebreak-style": [
-            "error",
-            "windows"
+            "off"
         ],
         "indent": [
             "error",
