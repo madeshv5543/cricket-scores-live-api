@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon --exec babel-node src/server.js",
     "build": "babel src —-out-dir dist",
-    "serve": "node dist/server.js"
+    "serve": "node dist/server.js",
+    "lint": "node_modules/.bin/esw src --ext .js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +28,13 @@
     "@babel/core": "^7.1.2",
     "@babel/node": "^7.0.0",
     "@babel/preset-env": "^7.1.0",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.7.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1",
+    "eslint-watch": "^4.0.2",
     "nodemon": "^1.18.4"
   }
 }
