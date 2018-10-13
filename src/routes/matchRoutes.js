@@ -1,18 +1,42 @@
-/* eslint-disable no-unused-vars */
 export default (app, db) => {
+    const handleError = (err, req, res) => {
+        if (err.message === 'notfound') {
+            res.status(404);
+            res.send(`match with id ${req.params.id} not found`);
+        } else {
+            res.status(500);
+        }
+    };
+
     app.get('/match/:id', (req, res) => {
-        res.send(`getting match ${req.params.id}`);
+        db.get(req.params.id, (err, result) => {
+            if (typeof err !== 'undefined') {
+                handleError(err, req, res);
+            } else {
+                res.send(result);
+            }
+        });
     });
 
     app.get('/match', (req, res) => {
-        res.send('getting matches');
+        db.getAll((err, result) => {
+            res.send(result);
+        });
     });
 
     app.post('/match', (req, res) => {
-        res.send('creating match');
+        db.add(req.body, (err, result) => {
+            res.send(result);
+        });
     });
 
     app.put('/match', (req, res) => {
-        res.send('updating match');
+        db.update(req.body, (err, result) => {
+            if (typeof err !== 'undefined') {
+                handleError(err, req, res);
+            } else {
+                res.send(result);
+            }
+        });
     });
 };
