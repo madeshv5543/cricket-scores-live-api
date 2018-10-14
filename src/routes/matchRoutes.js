@@ -4,7 +4,7 @@ export default (app, db) => {
             res.status(404);
             res.send(`match with id ${req.params.id} not found`);
         } else {
-            res.status(500);
+            res.sendStatus(500);
         }
     };
 

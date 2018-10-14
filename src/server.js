@@ -12,7 +12,8 @@ app.use((req, res, next) => {
 });
 
 app.options('/*', (req, res) => {
-    res.send(200);
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+    res.sendStatus(200);
 });
 
 const port = process.env.PORT || 8000;
