@@ -20,7 +20,13 @@ export default (app, db, checkJwt) => {
 
     app.get('/match', (req, res) => {
         db.getAll((err, result) => {
-            res.send(result);
+            res.send(result.map(item => ({
+                id: item.id,
+                date: item.match.date,
+                homeTeam: item.match.homeTeam.name,
+                awayTeam: item.match.awayTeam.name,
+                status: item.match.status,
+            })));
         });
     });
 
