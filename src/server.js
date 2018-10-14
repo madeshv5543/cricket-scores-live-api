@@ -1,7 +1,24 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import jwt from 'express-jwt';
+import jwksRsa from 'jwks-rsa';
+import dotenv from 'dotenv';
 import routes from './routes';
 import inMemoryDb from './db/inMemory';
+
+dotenv.config();
+
+const checkJwt = jwt({
+    secret: jwksRsa.expressJwtSecret({
+        cache: true,
+        rateLimit: true,
+        jwksRequestsPerMinute: 5,
+        jwksUri: `${process.env.ISSUER}.well-known/jwks.json`,
+    }),
+    audience: process.env.AUDIENCE,
+    issuer: process.env.ISSUER,
+    algorithms: ['RS256'],
+});
 
 const app = express();
 app.use(bodyParser.json());
@@ -18,7 +35,7 @@ app.options('/*', (req, res) => {
 
 const port = process.env.PORT || 8000;
 
-routes(app, inMemoryDb);
+routes(app, inMemoryDb, checkJwt);
 
 app.listen(port, () => {
     /* eslint-disable no-console */

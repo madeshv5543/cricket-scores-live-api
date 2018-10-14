@@ -1,4 +1,4 @@
-export default (app, db) => {
+export default (app, db, checkJwt) => {
     const handleError = (err, req, res) => {
         if (err.message === 'notfound') {
             res.status(404);
@@ -24,13 +24,13 @@ export default (app, db) => {
         });
     });
 
-    app.post('/match', (req, res) => {
+    app.post('/match', checkJwt, (req, res) => {
         db.add(req.body, (err, result) => {
             res.send(result);
         });
     });
 
-    app.put('/match/:id', (req, res) => {
+    app.put('/match/:id', checkJwt, (req, res) => {
         db.update(req.params.id, req.body, (err, result) => {
             if (typeof err !== 'undefined') {
                 handleError(err, req, res);
