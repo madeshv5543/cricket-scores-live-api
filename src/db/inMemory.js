@@ -23,7 +23,11 @@ const inMemoryDb = () => {
         }
     };
 
-    const getAll = callback => callback(undefined, matches);
+    const getAll = (query, callback) => callback(
+        undefined,
+        matches.filter(item => (!query.complete || item.match.complete)
+            && (!query.user || query.user === item.match.user))
+    );
 
     const get = (id, callback) => {
         const match = findMatch(id);
