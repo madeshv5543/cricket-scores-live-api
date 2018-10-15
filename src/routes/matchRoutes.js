@@ -10,7 +10,7 @@ export default (app, db, checkJwt) => {
 
     app.get('/match/:id', (req, res) => {
         db.get(req.params.id, (err, result) => {
-            if (typeof err !== 'undefined') {
+            if (err) {
                 handleError(err, req, res);
             } else {
                 res.send(result);
@@ -39,7 +39,7 @@ export default (app, db, checkJwt) => {
 
     app.put('/match/:id', checkJwt, (req, res) => {
         db.update(req.params.id, req.body, (err, result) => {
-            if (typeof err !== 'undefined') {
+            if (err) {
                 handleError(err, req, res);
             } else {
                 res.send(result);

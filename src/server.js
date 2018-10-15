@@ -5,6 +5,7 @@ import jwksRsa from 'jwks-rsa';
 import dotenv from 'dotenv';
 import routes from './routes';
 import inMemoryDb from './db/inMemory';
+import mongoDb from './db/mongo';
 
 dotenv.config();
 
@@ -35,7 +36,11 @@ app.options('/*', (req, res) => {
 
 const port = process.env.PORT || 8000;
 
-routes(app, inMemoryDb, checkJwt);
+routes(
+    app,
+    process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION),
+    checkJwt
+);
 
 app.listen(port, () => {
     /* eslint-disable no-console */
