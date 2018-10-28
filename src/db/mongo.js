@@ -18,6 +18,7 @@ export default (connection) => {
 
         if (query.complete) { result = { ...result, 'match.complete': true }; }
         if (query.user) { result = { ...result, 'match.user': query.user }; }
+        if (query.inprogress) { result = { ...result, 'match.complete': false }; }
         return result;
     };
 

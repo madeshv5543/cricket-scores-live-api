@@ -26,6 +26,7 @@ const inMemoryDb = () => {
     const getAll = (query, callback) => callback(
         undefined,
         matches.filter(item => (!query.complete || item.match.complete)
+            && (!query.inprogress || !item.match.complete)
             && (!query.user || query.user === item.match.user))
     );
 
