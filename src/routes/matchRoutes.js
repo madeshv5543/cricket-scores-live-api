@@ -27,6 +27,7 @@ export default (app, db, checkJwt) => {
                 homeTeam: item.match.homeTeam.name,
                 awayTeam: item.match.awayTeam.name,
                 status: item.match.status,
+                version: item.version || 0,
             })));
         });
     });
