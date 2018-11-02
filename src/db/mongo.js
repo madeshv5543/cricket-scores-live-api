@@ -43,8 +43,8 @@ export default (connection) => {
     const get = (id, callback) => (!db
         ? callback(undefined, undefined)
         : db.collection('matches').findOne({ _id: new ObjectID(id) }, (err, item) => callback(
-            err,
-            err ? undefined : { ...item, id: item._id }
+            item === null ? new Error('notfound') : err,
+            err || item === null ? undefined : { ...item, id: item._id }
         )));
 
     const update = (id, match, callback) => {
