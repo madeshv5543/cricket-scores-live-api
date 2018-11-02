@@ -47,15 +47,19 @@ export default (connection) => {
             err ? undefined : { ...item, id: item._id }
         )));
 
-    const update = (id, match, callback) => (!db
-        ? callback(undefined, undefined)
-        : db.collection('matches').update({ _id: new ObjectID(id) }, match, err => callback(
-            err,
-            err
-                ? undefined
-                : { ...match, id }
-        )));
-
+    const update = (id, match, callback) => {
+        if (!db) { callback(undefined, undefined); }
+        try {
+            db.collection('matches').updateOne(
+                { _id: new ObjectID(id) },
+                { $set: { ...match } },
+                { upsert: true }
+            );
+            callback(undefined, match);
+        } catch (err) {
+            callback(err, undefined);
+        }
+    };
 
     return {
         add,
