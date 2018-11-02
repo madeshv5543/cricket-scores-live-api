@@ -49,16 +49,20 @@ export default (connection) => {
 
     const update = (id, match, callback) => {
         if (!db) { callback(undefined, undefined); }
-        try {
-            db.collection('matches').updateOne(
-                { _id: new ObjectID(id) },
-                { $set: { ...match } },
-                { upsert: true }
-            );
-            callback(undefined, match);
-        } catch (err) {
-            callback(err, undefined);
-        }
+        get(id, (_, item) => {
+            try {
+                if (typeof item === 'undefined' || item.version < match.version) {
+                    db.collection('matches').updateOne(
+                        { _id: new ObjectID(id) },
+                        { $set: { ...match } },
+                        { upsert: true }
+                    );
+                }
+                callback(undefined, match);
+            } catch (err) {
+                callback(err, undefined);
+            }
+        });
     };
 
     return {

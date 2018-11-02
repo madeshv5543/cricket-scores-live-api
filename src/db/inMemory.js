@@ -15,7 +15,7 @@ const inMemoryDb = () => {
     const update = (id, match, callback) => {
         const matchToUpdate = findMatch(id);
         if (typeof matchToUpdate === 'undefined') {
-            callback(new Error('notfound'), undefined);
+            add(match, callback);
         } else {
             matches.splice(matches.indexOf(matchToUpdate), 1);
             matches.push(match);
