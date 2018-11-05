@@ -48,4 +48,14 @@ export default (app, db, checkJwt) => {
             }
         });
     });
+
+    app.delete('/match/:id', checkJwt, (req, res) => {
+        db.remove(req.params.id, (err) => {
+            if (err) {
+                handleError(err, req, res);
+            } else {
+                res.sendStatus(204);
+            }
+        });
+    });
 };

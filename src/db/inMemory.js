@@ -39,11 +39,22 @@ const inMemoryDb = () => {
         }
     };
 
+    const remove = (id, callback) => {
+        const match = findMatch(id);
+        if (typeof match === 'undefined') {
+            callback(new Error('notfound'), undefined);
+        } else {
+            matches.splice(matches.indexOf(match), 1);
+            callback(undefined);
+        }
+    };
+
     return {
         add,
         update,
         getAll,
         get,
+        remove,
     };
 };
 

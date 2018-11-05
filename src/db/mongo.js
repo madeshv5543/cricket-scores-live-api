@@ -65,11 +65,19 @@ export default (connection) => {
         });
     };
 
+    const remove = (id, callback) => (!db
+        ? callback(undefined, undefined)
+        : db.collection('matches').deleteOne({ _id: new ObjectID(id) }, (err, res) => callback(
+            res.deletedCount < 1 ? new Error('notfound') : err,
+            true
+        )));
+
     return {
         add,
         getAll,
         get,
         update,
+        remove,
     };
 };
 /* eslint-enable no-underscore-dangle */
