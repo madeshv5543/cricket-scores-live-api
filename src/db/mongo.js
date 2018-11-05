@@ -22,14 +22,20 @@ export default (connection) => {
         return result;
     };
 
-    const add = (match, callback) => (!db
+    const add = (match, user, callback) => (!db
         ? callback(undefined, undefined)
-        : db.collection('matches').insertOne(match, (err, result) => callback(
-            err,
-            err
-                ? undefined
-                : { ...result.ops[0], id: result.ops[0]._id }
-        )));
+        : db.collection('matches').insertOne(
+            {
+                ...match,
+                match: { ...match.match, user },
+            },
+            (err, result) => callback(
+                err,
+                err
+                    ? undefined
+                    : { ...result.ops[0], id: result.ops[0]._id }
+            )
+        ));
 
     const getAll = (query, callback) => (!db
         ? callback(undefined, [])

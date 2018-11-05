@@ -1,3 +1,5 @@
+import jwtDecode from 'jwt-decode';
+
 export default (app, db, checkJwt) => {
     const handleError = (err, req, res) => {
         if (err.message === 'notfound') {
@@ -5,6 +7,16 @@ export default (app, db, checkJwt) => {
             res.send(`match with id ${req.params.id} not found`);
         } else {
             res.sendStatus(500);
+        }
+    };
+
+    const getUser = req => jwtDecode(req.headers.authorization.split(' ')[1]).sub;
+
+    const checkUser = (user, match, validCallback, inValidCallback) => {
+        if (match && user === match.user) {
+            validCallback();
+        } else {
+            inValidCallback();
         }
     };
 
@@ -34,27 +46,45 @@ export default (app, db, checkJwt) => {
     });
 
     app.post('/match', checkJwt, (req, res) => {
-        db.add(req.body, (err, result) => {
+        db.add(req.body, getUser(req), (err, result) => {
             res.send(result);
         });
     });
 
     app.put('/match/:id', checkJwt, (req, res) => {
-        db.update(req.params.id, req.body, (err, result) => {
-            if (err) {
-                handleError(err, req, res);
-            } else {
-                res.send(result);
-            }
-        });
+        checkUser(
+            getUser(req),
+            req.body.match,
+            () => {
+                db.update(req.params.id, req.body, (err, result) => {
+                    if (err) {
+                        handleError(err, req, res);
+                    } else {
+                        res.send(result);
+                    }
+                });
+            },
+            () => res.sendStatus(401)
+        );
     });
 
     app.delete('/match/:id', checkJwt, (req, res) => {
-        db.remove(req.params.id, (err) => {
-            if (err) {
-                handleError(err, req, res);
+        db.get(req.params.id, (getErr, result) => {
+            if (!getErr) {
+                checkUser(
+                    getUser(req), result.match, () => {
+                        db.remove(req.params.id, (err) => {
+                            if (err) {
+                                handleError(err, req, res);
+                            } else {
+                                res.sendStatus(204);
+                            }
+                        });
+                    },
+                    () => res.sendStatus(401)
+                );
             } else {
-                res.sendStatus(204);
+                handleError(getErr);
             }
         });
     });
