@@ -1,8 +1,9 @@
 import jwtDecode from 'jwt-decode';
+import util from 'util';
 
 export default (app, db, checkJwt) => {
     const handleError = (err, req, res) => {
-        if (err.message === 'notfound') {
+        if (err.message && err.message === 'notfound') {
             res.status(404);
             res.send(`match with id ${req.params.id} not found`);
         } else {
@@ -12,27 +13,17 @@ export default (app, db, checkJwt) => {
 
     const getUser = req => jwtDecode(req.headers.authorization.split(' ')[1]).sub;
 
-    const checkUser = (user, match, validCallback, inValidCallback) => {
-        if (match && user === match.user) {
-            validCallback();
-        } else {
-            inValidCallback();
-        }
-    };
+    const checkUser = (user, match) => match && user === match.user;
 
     app.get('/match/:id', (req, res) => {
-        db.get(req.params.id, (err, result) => {
-            if (err) {
-                handleError(err, req, res);
-            } else {
-                res.send(result);
-            }
-        });
+        util.promisify(db.get)(req.params.id)
+            .then(result => res.send(result))
+            .catch(err => handleError(err, req, res));
     });
 
     app.get('/match', (req, res) => {
-        db.getAll(req.query, (err, result) => {
-            res.send(result.map(item => ({
+        util.promisify(db.getAll)(req.query)
+            .then(result => res.send(result.map(item => ({
                 id: item.id,
                 date: item.match.date,
                 user: item.match.user,
@@ -41,51 +32,37 @@ export default (app, db, checkJwt) => {
                 status: item.match.status,
                 version: item.version || 0,
                 lastEvent: item.lastEvent,
-            })));
-        });
+            }))))
+            .catch(err => handleError(err, req, res));
     });
 
     app.post('/match', checkJwt, (req, res) => {
-        db.add(req.body, getUser(req), (err, result) => {
-            res.send(result);
-        });
+        util.promisify(db.add)(req.body)
+            .then(result => res.send(result))
+            .catch(err => handleError(err, req, res));
     });
 
     app.put('/match/:id', checkJwt, (req, res) => {
-        checkUser(
-            getUser(req),
-            req.body.match,
-            () => {
-                db.update(req.params.id, req.body, (err, result) => {
-                    if (err) {
-                        handleError(err, req, res);
-                    } else {
-                        res.send(result);
-                    }
-                });
-            },
-            () => res.sendStatus(401)
-        );
+        if (!checkUser(getUser(req), req.body.match)) {
+            res.sendStatus(401);
+            return;
+        }
+
+        util.promisify(db.update)(req.params.id, req.body)
+            .then(result => res.send(result))
+            .catch(err => handleError(err, req, res));
     });
 
     app.delete('/match/:id', checkJwt, (req, res) => {
-        db.get(req.params.id, (getErr, result) => {
-            if (!getErr) {
-                checkUser(
-                    getUser(req), result.match, () => {
-                        db.remove(req.params.id, (err) => {
-                            if (err) {
-                                handleError(err, req, res);
-                            } else {
-                                res.sendStatus(204);
-                            }
-                        });
-                    },
-                    () => res.sendStatus(401)
-                );
-            } else {
-                handleError(getErr);
-            }
-        });
+        util.promisify(db.get)(req.params.id)
+            .then((result) => {
+                if (!checkUser(getUser(req), result.match)) {
+                    res.sendStatus(401);
+                } else {
+                    util.promisify(db.remove)(req.params.id);
+                }
+            })
+            .then(() => res.sendStatus(204))
+            .catch(err => handleError(err, req, res));
     });
 };
