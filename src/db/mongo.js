@@ -19,18 +19,29 @@ export default (connection, getDate) => {
         date: new Date(match.date),
     });
 
+    const firstDateForInProgress = () => {
+        const firstDate = getDate();
+        firstDate.setDate(firstDate.getDate() - maxDaysForMatch);
+        return firstDate;
+    };
+
     const queryParams = (query) => {
         let result = {};
 
         if (query.complete) { result = { ...result, 'match.complete': true }; }
         if (query.user) { result = { ...result, 'match.user': query.user }; }
         if (query.inprogress) {
-            const firstDate = getDate();
-            firstDate.setDate(firstDate.getDate() - maxDaysForMatch);
             result = {
                 ...result,
                 'match.complete': false,
-                'match.date': { $gt: firstDate },
+                'match.date': { $gt: firstDateForInProgress() },
+            };
+        }
+        if (query.expectedcomplete) {
+            result = {
+                ...result,
+                'match.complete': false,
+                'match.date': { $lte: firstDateForInProgress() },
             };
         }
         return result;
