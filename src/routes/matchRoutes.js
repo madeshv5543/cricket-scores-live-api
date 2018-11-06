@@ -43,12 +43,14 @@ export default (app, db, checkJwt) => {
     });
 
     app.put('/match/:id', checkJwt, (req, res) => {
-        if (!checkUser(getUser(req), req.body.match)) {
-            res.sendStatus(401);
-            return;
-        }
-
-        util.promisify(db.update)(req.params.id, req.body)
+        util.promisify(db.get)(req.params.id)
+            .then((getResult) => {
+                if (!checkUser(getUser(req), getResult.match)) {
+                    res.sendStatus(401);
+                } else {
+                    util.promisify(db.update)(req.params.id, req.body);
+                }
+            })
             .then(result => res.send(result))
             .catch(err => handleError(err, req, res));
     });
