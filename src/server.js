@@ -38,7 +38,7 @@ const port = process.env.PORT || 8000;
 
 routes(
     app,
-    process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION),
+    process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION, () => new Date()),
     checkJwt
 );
 

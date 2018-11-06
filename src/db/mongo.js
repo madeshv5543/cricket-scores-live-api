@@ -1,8 +1,9 @@
 import { MongoClient, ObjectID } from 'mongodb';
 
+const maxDaysForMatch = 6;
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable no-console */
-export default (connection) => {
+export default (connection, getDate) => {
     let db;
     MongoClient.connect(connection, { useNewUrlParser: true }, (err, database) => {
         if (err) {
@@ -13,12 +14,25 @@ export default (connection) => {
         db = database.db('cricket-scores-live');
     });
 
+    const matchWithDate = match => ({
+        ...match,
+        date: new Date(match.date),
+    });
+
     const queryParams = (query) => {
         let result = {};
 
         if (query.complete) { result = { ...result, 'match.complete': true }; }
         if (query.user) { result = { ...result, 'match.user': query.user }; }
-        if (query.inprogress) { result = { ...result, 'match.complete': false }; }
+        if (query.inprogress) {
+            const firstDate = getDate();
+            firstDate.setDate(firstDate.getDate() - maxDaysForMatch);
+            result = {
+                ...result,
+                'match.complete': false,
+                'match.date': { $gt: firstDate },
+            };
+        }
         return result;
     };
 
@@ -27,7 +41,7 @@ export default (connection) => {
         : db.collection('matches').insertOne(
             {
                 ...match,
-                match: { ...match.match, user },
+                match: { ...matchWithDate(match.match), user },
             },
             (err, result) => callback(
                 err,
@@ -60,7 +74,12 @@ export default (connection) => {
                 if (typeof item === 'undefined' || item.version < match.version) {
                     db.collection('matches').updateOne(
                         { _id: new ObjectID(id) },
-                        { $set: { ...match } },
+                        {
+                            $set: {
+                                ...match,
+                                match: matchWithDate(match.match),
+                            },
+                        },
                         { upsert: true }
                     );
                 }
