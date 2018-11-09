@@ -1,7 +1,7 @@
 import jwtDecode from 'jwt-decode';
 import util from 'util';
 
-export default (app, db, checkJwt, updated) => {
+export default (app, db, checkJwt, updates) => {
     const handleError = (err, req, res) => {
         if (err.message && err.message === 'notfound') {
             res.status(404);
@@ -38,8 +38,10 @@ export default (app, db, checkJwt, updated) => {
 
     app.post('/match', checkJwt, (req, res) => {
         util.promisify(db.add)(req.body, getUser(req))
-            .then(result => res.send(result))
-            .then(() => updated(req.body))
+            .then((result) => {
+                res.send(result);
+                updates.matchAdded(req.body);
+            })
             .catch(err => handleError(err, req, res));
     });
 
@@ -50,10 +52,10 @@ export default (app, db, checkJwt, updated) => {
                     res.sendStatus(401);
                 } else {
                     util.promisify(db.update)(req.params.id, req.body);
+                    updates.matchUpdated(req.body);
                 }
             })
             .then(result => res.send(result))
-            .then(() => updated(req.body))
             .catch(err => handleError(err, req, res));
     });
 

@@ -39,13 +39,12 @@ app.options('/*', (req, res) => {
 });
 
 const port = process.env.PORT || 8000;
-const updates = liveUpdates(server);
 
 routes(
     app,
     process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION, () => new Date()),
     checkJwt,
-    updates.matchUpdated,
+    liveUpdates(server),
 );
 
 server.listen(port, () => {
