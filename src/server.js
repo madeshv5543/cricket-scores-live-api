@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 import jwksRsa from 'jwks-rsa';
@@ -6,6 +7,7 @@ import dotenv from 'dotenv';
 import routes from './routes';
 import inMemoryDb from './db/inMemory';
 import mongoDb from './db/mongo';
+import liveUpdates from './liveUpdates';
 
 dotenv.config();
 
@@ -22,6 +24,8 @@ const checkJwt = jwt({
 });
 
 const app = express();
+const server = http.Server(app);
+
 app.use(bodyParser.json());
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -35,14 +39,16 @@ app.options('/*', (req, res) => {
 });
 
 const port = process.env.PORT || 8000;
+const updates = liveUpdates(server);
 
 routes(
     app,
     process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION, () => new Date()),
-    checkJwt
+    checkJwt,
+    updates.matchUpdated,
 );
 
-app.listen(port, () => {
+server.listen(port, () => {
     /* eslint-disable no-console */
     console.log(`Listening on port ${port}`);
 });
