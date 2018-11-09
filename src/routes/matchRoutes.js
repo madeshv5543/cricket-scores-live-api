@@ -40,7 +40,7 @@ export default (app, db, checkJwt, updates) => {
         util.promisify(db.add)(req.body, getUser(req))
             .then((result) => {
                 res.send(result);
-                updates.matchAdded(req.body);
+                updates.matchAdded(result);
             })
             .catch(err => handleError(err, req, res));
     });

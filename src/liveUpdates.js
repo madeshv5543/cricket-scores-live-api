@@ -64,7 +64,7 @@ export default (server) => {
 
     const matchAdded = item => new Promise((resolve) => {
         io.of(updatesNamespace).emit(newMatchMsg, {
-            id: item.match.id,
+            id: item.id,
             date: item.match.date,
             user: item.match.user,
             homeTeam: item.match.homeTeam.name,
