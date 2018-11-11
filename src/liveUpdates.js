@@ -56,7 +56,10 @@ export default (server) => {
             .filter(key => scorecardSubscriptions[key].matchId === item.match.id)
             .forEach(key => scorecardSubscriptions[key].socket.emit(
                 scorecardUpdateMsg,
-                item.match
+                {
+                    match: item.match,
+                    lastEvent: item.lastEvent,
+                },
             ));
 
         resolve();
