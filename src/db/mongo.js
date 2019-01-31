@@ -108,12 +108,47 @@ export default (connection, getDate) => {
             true
         )));
 
+    const recordUserTeams = (user, teams) => {
+        db.collection('userTeams').find({ user }).toArray((err, result) => {
+            if (err) { return; }
+            if (result.length === 0) {
+                db.collection('userTeams').insertOne({
+                    user,
+                    teams,
+                });
+            } else {
+                const userTeams = result[0];
+                db.collection('userTeams').updateOne(
+                    { _id: new ObjectID(userTeams._id) },
+                    {
+                        $set: {
+                            user: userTeams.user,
+                            teams: [
+                                ...userTeams.teams.filter(t => !teams.map(team => team.name).find(tn => tn === t.name)),
+                                ...teams,
+                            ],
+                        },
+                    }
+                );
+            }
+        });
+    };
+
+    const getUserTeams = (user, callback) => (!db
+        ? callback(undefined, undefined)
+        : db.collection('userTeams').findOne({ user }, (err, item) => callback(
+            item === null ? new Error('notfound') : err,
+            err || item === null ? undefined : { user, teams: item.teams }
+        )));
+
     return {
         add,
         getAll,
         get,
         update,
         remove,
+        recordUserTeams,
+        getUserTeams,
     };
 };
 /* eslint-enable no-underscore-dangle */

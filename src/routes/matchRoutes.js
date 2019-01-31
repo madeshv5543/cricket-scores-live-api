@@ -37,8 +37,10 @@ export default (app, db, checkJwt, updates) => {
     });
 
     app.post('/match', checkJwt, (req, res) => {
-        util.promisify(db.add)(req.body, getUser(req))
+        const user = getUser(req);
+        util.promisify(db.add)(req.body, user)
             .then((result) => {
+                db.recordUserTeams(user, [req.body.match.homeTeam, req.body.match.awayTeam]);
                 res.send(result);
                 updates.matchAdded(result);
             })

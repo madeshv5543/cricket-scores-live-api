@@ -55,6 +55,8 @@ const inMemoryDb = () => {
         getAll,
         get,
         remove,
+        recordUserTeams: () => { },
+        getUserTeams: () => null,
     };
 };
 
