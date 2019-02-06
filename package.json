@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/ChrisDobby/cricket-scores-live-api#readme",
   "dependencies": {
+    "bad-words": "^3.0.0",
     "body-parser": "^1.18.3",
     "dotenv": "^6.1.0",
     "express": "^4.16.4",

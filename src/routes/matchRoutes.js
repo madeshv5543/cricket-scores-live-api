@@ -1,5 +1,6 @@
 import jwtDecode from 'jwt-decode';
 import util from 'util';
+import profanityFilter from '../middleware/profanityFilter';
 
 export default (app, db, checkJwt, updates) => {
     const handleError = (err, req, res) => {
@@ -36,7 +37,7 @@ export default (app, db, checkJwt, updates) => {
             .catch(err => handleError(err, req, res));
     });
 
-    app.post('/match', checkJwt, (req, res) => {
+    app.post('/match', checkJwt, profanityFilter, (req, res) => {
         const user = getUser(req);
         util.promisify(db.add)(req.body, user)
             .then((result) => {
@@ -47,7 +48,7 @@ export default (app, db, checkJwt, updates) => {
             .catch(err => handleError(err, req, res));
     });
 
-    app.put('/match/:id', checkJwt, (req, res) => {
+    app.put('/match/:id', checkJwt, profanityFilter, (req, res) => {
         util.promisify(db.get)(req.params.id)
             .then((getResult) => {
                 if (!checkUser(getUser(req), getResult.match)) {
