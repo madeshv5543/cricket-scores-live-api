@@ -11,7 +11,7 @@ const GLOBALS = {
 };
 
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     entry: './src/lambdas/match/getMatches.js',
     target: 'node',
     output: {
