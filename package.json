@@ -10,6 +10,7 @@
     "prebuild": "npm-run-all clean-dist lint",
     "build": "babel src --out-dir dist",
     "build-get-matches": "webpack --config ./webpack.config.getMatches.js --hide-modules --progress --colors",
+    "build-get-match": "webpack --config ./webpack.config.getMatch.js --hide-modules --progress --colors",
     "serve": "node dist/server.js",
     "lint": "node_modules/.bin/esw src --ext .js",
     "heroku-postbuild": "npm-run-all clean-dist build"
