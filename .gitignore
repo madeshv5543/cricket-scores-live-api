@@ -62,3 +62,6 @@ typings/
 
 # dist folder
 dist
+
+# lambda dist folder
+lambdas-dist
