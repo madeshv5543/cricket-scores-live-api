@@ -15,7 +15,7 @@ module.exports = {
     entry: './src/lambdas/match/getMatch.js',
     target: 'node',
     output: {
-        path: path.join(__dirname, '/lambdas-dist'),
+        path: path.join(__dirname, '/lambdas-dist/get-match'),
         filename: 'getMatch.js',
         libraryTarget: 'commonjs',
         library: 'getMatch',
