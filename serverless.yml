@@ -1,0 +1,30 @@
+service: cricket-scorer
+
+provider:
+    name: aws
+    runtime: nodejs8.10
+    region: eu-west-2
+
+package:
+    individually: true
+
+functions:
+    get-matches:
+        handler: getMatches.handler
+        events:
+            - http:
+                  path: match
+                  method: get
+                  cors: true
+        package:
+            artifact: ./lambdas-dist/get-matches/get-matches.zip
+
+    get-match:
+        handler: getMatch.handler
+        events:
+            - http:
+                  path: match/{id}
+                  method: get
+                  cors: true
+        package:
+            artifact: ./lambdas-dist/get-match/get-match.zip
