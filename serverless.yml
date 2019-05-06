@@ -28,3 +28,13 @@ functions:
                   cors: true
         package:
             artifact: ./lambdas-dist/get-match/get-match.zip
+
+    add-match:
+        handler: addMatch.handler
+        events:
+            - http:
+                  path: match
+                  method: post
+                  cors: true
+        package:
+            artifact: ./lambdas-dist/add-match/add-match.zip
