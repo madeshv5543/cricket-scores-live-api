@@ -3,7 +3,7 @@ import mongoDb from '../../db/mongo';
 import inMemoryDb from '../../db/inMemory';
 
 const getMatch = db => async event => {
-    const id = event.pathParameters.id;
+    const { id } = event.pathParameters;
     const match = await util.promisify(db.get)(id);
 
     if (!match) {
