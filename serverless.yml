@@ -55,3 +55,14 @@ functions:
                   authorizer: authoriser
         package:
             artifact: ./lambdas-dist/put-match/put-match.zip
+
+    delete-match:
+        handler: deleteMatch.handler
+        events:
+            - http:
+                  path: match/{id}
+                  method: delete
+                  cors: true
+                  authorizer: authoriser
+        package:
+            artifact: ./lambdas-dist/delete-match/delete-match.zip

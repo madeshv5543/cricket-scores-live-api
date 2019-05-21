@@ -5,7 +5,7 @@ import handleError from '../handleError';
 import getUser from '../getUser';
 import checkUser from '../checkUser';
 
-const putMatch = db => async event => {
+const deleteMatch = db => async event => {
     try {
         const { id } = event.pathParameters;
         const getResult = await util.promisify(db.get)(id);
@@ -20,18 +20,17 @@ const putMatch = db => async event => {
                 statusCode: 401,
             };
         }
-        const result = await util.promisify(db.update)(event.params.id, event.body);
-        updates.matchUpdated(event.body);
+
+        await util.promisify(db.remove)(req.params.id);
 
         return {
-            statusCode: 200,
-            body: JSON.stringify(result),
+            statusCode: 204,
         };
     } catch (err) {
         return handleError(err, event);
     }
 };
 
-exports.handler = putMatch(
+exports.handler = deleteMatch(
     process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION, () => new Date()),
 );
