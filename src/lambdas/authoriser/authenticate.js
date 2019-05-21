@@ -43,7 +43,6 @@ const jwtOptions = {
 };
 
 export default params => {
-    console.log(params);
     const token = getToken(params);
 
     const decoded = jwt.decode(token, { complete: true });
