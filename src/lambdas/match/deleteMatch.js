@@ -21,7 +21,7 @@ const deleteMatch = db => async event => {
             };
         }
 
-        await util.promisify(db.remove)(req.params.id);
+        await util.promisify(db.remove)(id);
 
         return {
             statusCode: 204,

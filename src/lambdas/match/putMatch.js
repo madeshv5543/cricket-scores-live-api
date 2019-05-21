@@ -21,7 +21,6 @@ const putMatch = db => async event => {
             };
         }
         const result = await util.promisify(db.update)(event.params.id, event.body);
-        updates.matchUpdated(event.body);
 
         return {
             statusCode: 200,
