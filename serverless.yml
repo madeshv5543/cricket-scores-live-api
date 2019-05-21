@@ -29,6 +29,11 @@ functions:
         package:
             artifact: ./lambdas-dist/get-match/get-match.zip
 
+    authoriser:
+        handler: index.handler
+        package:
+            artifact: ./lambdas-dist/authoriser/authoriser.zip
+
     add-match:
         handler: addMatch.handler
         events:
@@ -36,5 +41,6 @@ functions:
                   path: match
                   method: post
                   cors: true
+                  authorizer: authoriser
         package:
             artifact: ./lambdas-dist/add-match/add-match.zip
