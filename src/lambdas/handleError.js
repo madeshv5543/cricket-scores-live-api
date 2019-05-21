@@ -4,10 +4,10 @@ export default (err, req) => {
             statusCode: 404,
             body: `match with id ${req.params.id} not found`,
         };
-    } else {
-        return {
-            statusCode: 500,
-            body: err.message,
-        };
     }
+
+    return {
+        statusCode: 500,
+        body: err.message,
+    };
 };

@@ -19,13 +19,6 @@
         "linebreak-style": [
             "off"
         ],
-        "indent": [
-            "error",
-            4,
-            {
-                "ignoreComments": true
-            }
-        ],
         "comma-dangle": [
             "error",
             "always-multiline"

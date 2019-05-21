@@ -63,9 +63,9 @@ export default params => {
             const signingKey = key.publicKey || key.rsaPublicKey;
             return jwt.verify(token, signingKey, jwtOptions);
         })
-        .then(decoded => ({
-            principalId: decoded.sub,
+        .then(decodedKey => ({
+            principalId: decodedKey.sub,
             policyDocument: getPolicyDocument('Allow', params.methodArn),
-            context: { scope: decoded.scope },
+            context: { scope: decodedKey.scope },
         }));
 };
