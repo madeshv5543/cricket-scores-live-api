@@ -4,9 +4,20 @@ provider:
     name: aws
     runtime: nodejs8.10
     region: eu-west-2
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - dynamodb:*
+          Resource: '*'
 
 package:
     individually: true
+
+plugins:
+    - serverless-websockets-plugin
+
+websocketApiName: websocket-updates-${self:provider.stage}
+websocketApiRouteSelectionExpression: $request.body.action
 
 functions:
     get-matches:
@@ -76,3 +87,21 @@ functions:
                   cors: true
         package:
             artifact: ./lambdas-dist/get-teams/get-teams.zip
+
+    on-connect:
+        handler: index.onConnect
+        events:
+            - websocket:
+                  route: $connect
+                  routeKey: $connect
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip
+
+    on-disconnect:
+        handler: index.onDisconnect
+        events:
+            - websocket:
+                  route: $disconnect
+                  routeKey: $disconnect
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip

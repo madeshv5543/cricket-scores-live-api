@@ -2,6 +2,7 @@ import uuid from 'uuid/v1';
 
 const inMemoryDb = () => {
     const matches = [];
+    const connections = {};
 
     const findMatch = id => matches.find(m => m.id === id);
 
@@ -23,12 +24,16 @@ const inMemoryDb = () => {
         }
     };
 
-    const getAll = (query, callback) => callback(
-        undefined,
-        matches.filter(item => (!query.complete || item.match.complete)
-            && (!query.inprogress || !item.match.complete)
-            && (!query.user || query.user === item.match.user))
-    );
+    const getAll = (query, callback) =>
+        callback(
+            undefined,
+            matches.filter(
+                item =>
+                    (!query.complete || item.match.complete) &&
+                    (!query.inprogress || !item.match.complete) &&
+                    (!query.user || query.user === item.match.user),
+            ),
+        );
 
     const get = (id, callback) => {
         const match = findMatch(id);
@@ -49,14 +54,28 @@ const inMemoryDb = () => {
         }
     };
 
+    const addConnection = (id, url) =>
+        new Promise(resolve => {
+            connections[id] = { url };
+            resolve();
+        });
+
+    const removeConnection = id =>
+        new Promise(resolve => {
+            delete connections[id];
+            resolve();
+        });
+
     return {
         add,
         update,
         getAll,
         get,
         remove,
-        recordUserTeams: () => { },
+        recordUserTeams: () => {},
         getUserTeams: () => null,
+        addConnection,
+        removeConnection,
     };
 };
 

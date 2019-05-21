@@ -16,7 +16,8 @@
     "build-delete-match": "rimraf ./lambdas-dist/delete-match && webpack --config ./webpack.config.deleteMatch.js --hide-modules --progress --colors && node create-zip.js delete-match",
     "build-get-teams": "rimraf ./lambdas-dist/get-teams && webpack --config ./webpack.config.getTeams.js --hide-modules --progress --colors && node create-zip.js get-teams",
     "build-authoriser": "rimraf ./lambdas-dist/authoriser && webpack --config ./webpack.config.authoriser.js --hide-modules --progress --colors && node create-zip.js authoriser",
-    "build-lambdas": "npm run build-get-matches && npm run build-get-match && npm run build-add-match && npm run build-put-match && npm run build-delete-match && npm run build-get-teams && npm run build-authoriser",
+    "build-sockets": "rimraf ./lambdas-dist/sockets && webpack --config ./webpack.config.sockets.js --hide-modules --progress --colors && node create-zip.js sockets",
+    "build-lambdas": "npm run build-get-matches && npm run build-get-match && npm run build-add-match && npm run build-put-match && npm run build-delete-match && npm run build-get-teams && npm run build-authoriser && npm run build-sockets",
     "deploy-lambdas": "npm run build-lambdas && serverless deploy",
     "serve": "node dist/server.js",
     "lint": "node_modules/.bin/esw src --ext .js",
@@ -33,6 +34,7 @@
   },
   "homepage": "https://github.com/ChrisDobby/cricket-scores-live-api#readme",
   "dependencies": {
+    "aws-sdk": "^2.459.0",
     "bad-words": "^3.0.0",
     "body-parser": "^1.18.3",
     "dotenv": "^6.1.0",
@@ -63,7 +65,9 @@
     "npm-run-all": "^4.1.3",
     "rimraf": "^2.6.2",
     "serverless": "^1.41.0",
+    "serverless-websockets-plugin": "^1.0.0",
     "webpack": "^4.30.0",
-    "webpack-cli": "^3.3.0"
+    "webpack-cli": "^3.3.0",
+    "webpack-node-externals": "^1.7.2"
   }
 }
