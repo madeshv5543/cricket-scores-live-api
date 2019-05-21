@@ -44,3 +44,14 @@ functions:
                   authorizer: authoriser
         package:
             artifact: ./lambdas-dist/add-match/add-match.zip
+
+    put-match:
+        handler: putMatch.handler
+        events:
+            - http:
+                  path: match/{id}
+                  method: put
+                  cors: true
+                  authorizer: authoriser
+        package:
+            artifact: ./lambdas-dist/put-match/put-match.zip
