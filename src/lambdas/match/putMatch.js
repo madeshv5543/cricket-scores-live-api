@@ -4,6 +4,7 @@ import inMemoryDb from '../../db/inMemory';
 import handleError from '../handleError';
 import getUser from '../getUser';
 import checkUser from '../checkUser';
+import profanityFilter from '../profanityFilter';
 
 const putMatch = db => async event => {
     try {
@@ -20,7 +21,8 @@ const putMatch = db => async event => {
                 statusCode: 401,
             };
         }
-        const result = await util.promisify(db.update)(event.params.id, event.body);
+        const body = profanityFilter(JSON.parse(event.body));
+        const result = await util.promisify(db.update)(event.params.id, body);
 
         return {
             statusCode: 200,
