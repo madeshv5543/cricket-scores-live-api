@@ -25,11 +25,15 @@ export default (connection, getDate) => {
         return firstDate;
     };
 
-    const queryParams = (query) => {
+    const queryParams = query => {
         let result = {};
 
-        if (query.complete) { result = { ...result, 'match.complete': true }; }
-        if (query.user) { result = { ...result, 'match.user': query.user }; }
+        if (query.complete) {
+            result = { ...result, 'match.complete': true };
+        }
+        if (query.user) {
+            result = { ...result, 'match.user': query.user };
+        }
         if (query.inprogress) {
             result = {
                 ...result,
@@ -47,39 +51,39 @@ export default (connection, getDate) => {
         return result;
     };
 
-    const add = (match, user, callback) => (!db
-        ? callback(undefined, undefined)
-        : db.collection('matches').insertOne(
-            {
-                ...match,
-                match: { ...matchWithDate(match.match), user },
-            },
-            (err, result) => callback(
-                err,
-                err
-                    ? undefined
-                    : { ...result.ops[0], id: result.ops[0]._id }
-            )
-        ));
+    const add = (match, user, callback) =>
+        !db
+            ? callback(undefined, undefined)
+            : db
+                  .collection('matches')
+                  .insertOne({ ...match, match: { ...matchWithDate(match.match), user } }, (err, result) =>
+                      callback(err, err ? undefined : { ...result.ops[0], id: result.ops[0]._id }),
+                  );
 
-    const getAll = (query, callback) => (!db
-        ? callback(undefined, [])
-        : db.collection('matches').find(queryParams(query)).toArray((err, result) => callback(
-            err,
-            err
-                ? []
-                : result.map(item => ({ ...item, id: item._id }))
-        )));
+    const getAll = (query, callback) =>
+        !db
+            ? callback(undefined, [])
+            : db
+                  .collection('matches')
+                  .find(queryParams(query))
+                  .toArray((err, result) => callback(err, err ? [] : result.map(item => ({ ...item, id: item._id }))));
 
-    const get = (id, callback) => (!db
-        ? callback(undefined, undefined)
-        : db.collection('matches').findOne({ _id: new ObjectID(id) }, (err, item) => callback(
-            item === null ? new Error('notfound') : err,
-            err || item === null ? undefined : { ...item, id: item._id }
-        )));
+    const get = (id, callback) =>
+        !db
+            ? callback(undefined, undefined)
+            : db
+                  .collection('matches')
+                  .findOne({ _id: new ObjectID(id) }, (err, item) =>
+                      callback(
+                          item === null ? new Error('notfound') : err,
+                          err || item === null ? undefined : { ...item, id: item._id },
+                      ),
+                  );
 
     const update = (id, match, callback) => {
-        if (!db) { callback(undefined, undefined); }
+        if (!db) {
+            callback(undefined, undefined);
+        }
         get(id, (_, item) => {
             try {
                 if (typeof item === 'undefined' || item.version < match.version) {
@@ -91,7 +95,7 @@ export default (connection, getDate) => {
                                 match: matchWithDate(match.match),
                             },
                         },
-                        { upsert: true }
+                        { upsert: true },
                     );
                 }
                 callback(undefined, match);
@@ -101,45 +105,59 @@ export default (connection, getDate) => {
         });
     };
 
-    const remove = (id, callback) => (!db
-        ? callback(undefined, undefined)
-        : db.collection('matches').deleteOne({ _id: new ObjectID(id) }, (err, res) => callback(
-            res.deletedCount < 1 ? new Error('notfound') : err,
-            true
-        )));
+    const remove = (id, callback) =>
+        !db
+            ? callback(undefined, undefined)
+            : db
+                  .collection('matches')
+                  .deleteOne({ _id: new ObjectID(id) }, (err, res) =>
+                      callback(res.deletedCount < 1 ? new Error('notfound') : err, true),
+                  );
 
     const recordUserTeams = (user, teams) => {
-        db.collection('userTeams').find({ user }).toArray((err, result) => {
-            if (err) { return; }
-            if (result.length === 0) {
-                db.collection('userTeams').insertOne({
-                    user,
-                    teams,
-                });
-            } else {
-                const userTeams = result[0];
-                db.collection('userTeams').updateOne(
-                    { _id: new ObjectID(userTeams._id) },
-                    {
-                        $set: {
-                            user: userTeams.user,
-                            teams: [
-                                ...userTeams.teams.filter(t => !teams.map(team => team.name).find(tn => tn === t.name)),
-                                ...teams,
-                            ],
+        if (!db) return;
+        db.collection('userTeams')
+            .find({ user })
+            .toArray((err, result) => {
+                if (err) {
+                    return;
+                }
+                if (result.length === 0) {
+                    db.collection('userTeams').insertOne({
+                        user,
+                        teams,
+                    });
+                } else {
+                    const userTeams = result[0];
+                    db.collection('userTeams').updateOne(
+                        { _id: new ObjectID(userTeams._id) },
+                        {
+                            $set: {
+                                user: userTeams.user,
+                                teams: [
+                                    ...userTeams.teams.filter(
+                                        t => !teams.map(team => team.name).find(tn => tn === t.name),
+                                    ),
+                                    ...teams,
+                                ],
+                            },
                         },
-                    }
-                );
-            }
-        });
+                    );
+                }
+            });
     };
 
-    const getUserTeams = (user, callback) => (!db
-        ? callback(undefined, undefined)
-        : db.collection('userTeams').findOne({ user }, (err, item) => callback(
-            item === null ? new Error('notfound') : err,
-            err || item === null ? undefined : { user, teams: item.teams }
-        )));
+    const getUserTeams = (user, callback) =>
+        !db
+            ? callback(undefined, undefined)
+            : db
+                  .collection('userTeams')
+                  .findOne({ user }, (err, item) =>
+                      callback(
+                          item === null ? new Error('notfound') : err,
+                          err || item === null ? undefined : { user, teams: item.teams },
+                      ),
+                  );
 
     return {
         add,

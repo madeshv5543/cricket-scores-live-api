@@ -1,0 +1,125 @@
+service: cricket-scorer
+
+provider:
+    name: aws
+    runtime: nodejs8.10
+    region: eu-west-2
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - dynamodb:*
+          Resource: '*'
+
+package:
+    individually: true
+
+plugins:
+    - serverless-websockets-plugin
+
+websocketApiName: websocket-updates-${self:provider.stage}
+websocketApiRouteSelectionExpression: $request.body.action
+
+functions:
+    get-matches:
+        handler: getMatches.handler
+        events:
+            - http:
+                  path: match
+                  method: get
+                  cors: true
+        package:
+            artifact: ./lambdas-dist/get-matches/get-matches.zip
+
+    get-match:
+        handler: getMatch.handler
+        events:
+            - http:
+                  path: match/{id}
+                  method: get
+                  cors: true
+        package:
+            artifact: ./lambdas-dist/get-match/get-match.zip
+
+    authoriser:
+        handler: index.handler
+        package:
+            artifact: ./lambdas-dist/authoriser/authoriser.zip
+
+    add-match:
+        handler: addMatch.handler
+        events:
+            - http:
+                  path: match
+                  method: post
+                  cors: true
+                  authorizer: authoriser
+        package:
+            artifact: ./lambdas-dist/add-match/add-match.zip
+
+    put-match:
+        handler: putMatch.handler
+        events:
+            - http:
+                  path: match/{id}
+                  method: put
+                  cors: true
+                  authorizer: authoriser
+        package:
+            artifact: ./lambdas-dist/put-match/put-match.zip
+
+    delete-match:
+        handler: deleteMatch.handler
+        events:
+            - http:
+                  path: match/{id}
+                  method: delete
+                  cors: true
+                  authorizer: authoriser
+        package:
+            artifact: ./lambdas-dist/delete-match/delete-match.zip
+
+    get-teams:
+        handler: getTeams.handler
+        events:
+            - http:
+                  path: user/teams
+                  method: get
+                  cors: true
+        package:
+            artifact: ./lambdas-dist/get-teams/get-teams.zip
+
+    on-connect:
+        handler: index.onConnect
+        events:
+            - websocket:
+                  route: $connect
+                  routeKey: $connect
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip
+
+    on-disconnect:
+        handler: index.onDisconnect
+        events:
+            - websocket:
+                  route: $disconnect
+                  routeKey: $disconnect
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip
+
+    on-matchid:
+        handler: index.onMatchId
+        events:
+            - websocket:
+                  route: matchid
+                  routeKey: matchid
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip
+
+    on-matchids:
+        handler: index.onMatchIds
+        events:
+            - websocket:
+                  route: matchids
+                  routeKey: matchids
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip
