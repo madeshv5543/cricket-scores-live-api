@@ -105,3 +105,21 @@ functions:
                   routeKey: $disconnect
         package:
             artifact: ./lambdas-dist/sockets/sockets.zip
+
+    on-matchid:
+        handler: index.onMatchId
+        events:
+            - websocket:
+                  route: matchid
+                  routeKey: matchid
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip
+
+    on-matchids:
+        handler: index.onMatchIds
+        events:
+            - websocket:
+                  route: matchids
+                  routeKey: matchids
+        package:
+            artifact: ./lambdas-dist/sockets/sockets.zip

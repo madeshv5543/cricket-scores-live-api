@@ -101,9 +101,34 @@ const dynamo = () => {
             }
         });
 
+    const setMatchIds = (id, matchIds) =>
+        new Promise(async (resolve, reject) => {
+            try {
+                const params = {
+                    TableName: connectionsTable,
+                    Key: {
+                        connectionId: { S: id },
+                    },
+                    UpdateExpression: 'set matchIds = :matchIds',
+                    ExpressionAttributeValues: {
+                        ':matchIds': { SS: matchIds },
+                    },
+                };
+                const success = await createIfMissing(() => execute('updateItem', params));
+                if (success) {
+                    resolve();
+                } else {
+                    reject(new Error());
+                }
+            } catch (err) {
+                reject(err);
+            }
+        });
+
     return {
         addConnection,
         removeConnection,
+        setMatchIds,
     };
 };
 

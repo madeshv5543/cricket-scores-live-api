@@ -66,6 +66,12 @@ const inMemoryDb = () => {
             resolve();
         });
 
+    const setMatchIds = (id, matchIds) =>
+        new Promise(async resolve => {
+            connections[id].matchIds = matchIds;
+            resolve();
+        });
+
     return {
         add,
         update,
@@ -76,6 +82,7 @@ const inMemoryDb = () => {
         getUserTeams: () => null,
         addConnection,
         removeConnection,
+        setMatchIds,
     };
 };
 
