@@ -1,10 +1,9 @@
-import util from 'util';
-import mongoDb from '../../db/mongo';
+import dynamo from '../../db/dynamo';
 import inMemoryDb from '../../db/inMemory';
 
 const getMatch = db => async event => {
     const { id } = event.pathParameters;
-    const match = await util.promisify(db.get)(id);
+    const match = await db.get(id);
 
     if (!match) {
         return {
@@ -19,6 +18,4 @@ const getMatch = db => async event => {
     };
 };
 
-exports.handler = getMatch(
-    process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION, () => new Date()),
-);
+exports.handler = getMatch(process.env.IN_MEMORY ? inMemoryDb : dynamo);

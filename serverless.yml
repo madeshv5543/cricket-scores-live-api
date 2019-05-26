@@ -123,3 +123,87 @@ functions:
                   routeKey: matchids
         package:
             artifact: ./lambdas-dist/sockets/sockets.zip
+
+resources:
+    Resources:
+        DynamoDbMatches:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: cricket-scores-matches
+                AttributeDefinitions:
+                    - AttributeName: id
+                      AttributeType: S
+                    - AttributeName: userId
+                      AttributeType: S
+                    - AttributeName: complete
+                      AttributeType: S
+                    - AttributeName: userId__complete
+                      AttributeType: S
+                    - AttributeName: matchDate
+                      AttributeType: N
+                KeySchema:
+                    - AttributeName: id
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 5
+                    WriteCapacityUnits: 5
+                GlobalSecondaryIndexes:
+                    - IndexName: userIndex
+                      KeySchema:
+                          - AttributeName: userId
+                            KeyType: HASH
+                          - AttributeName: matchDate
+                            KeyType: RANGE
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5
+                    - IndexName: completeIndex
+                      KeySchema:
+                          - AttributeName: complete
+                            KeyType: HASH
+                          - AttributeName: matchDate
+                            KeyType: RANGE
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5
+                    - IndexName: userCompleteIndex
+                      KeySchema:
+                          - AttributeName: userId__complete
+                            KeyType: HASH
+                          - AttributeName: matchDate
+                            KeyType: RANGE
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5
+        DynamoDbUserTeams:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: cricket-scores-user-teams
+                AttributeDefinitions:
+                    - AttributeName: userId
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: userId
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 5
+                    WriteCapacityUnits: 5
+        DynamoDbConnections:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: cricket-scores-connections
+                AttributeDefinitions:
+                    - AttributeName: connectionId
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: connectionId
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 5
+                    WriteCapacityUnits: 5

@@ -1,5 +1,5 @@
 import util from 'util';
-import mongoDb from '../../db/mongo';
+import dynamo from '../../db/dynamo';
 import inMemoryDb from '../../db/inMemory';
 import getUser from '../getUser';
 
@@ -12,6 +12,4 @@ const getMatches = db => async event => {
     };
 };
 
-exports.handler = getMatches(
-    process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION, () => new Date()),
-);
+exports.handler = getMatches(process.env.IN_MEMORY ? inMemoryDb : dynamo);

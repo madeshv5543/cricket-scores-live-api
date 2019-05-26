@@ -1,5 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
+const nodeExternals = require('webpack-node-externals');
+const externalsWhitelist = require('./externalsWhitelist');
 
 require('dotenv').config();
 
@@ -21,4 +23,5 @@ module.exports = {
         library: 'getMatch',
     },
     plugins: [new webpack.DefinePlugin(GLOBALS)],
+    externals: [nodeExternals({ whitelist: externalsWhitelist })],
 };
