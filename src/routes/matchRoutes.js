@@ -1,5 +1,4 @@
 import jwtDecode from 'jwt-decode';
-import util from 'util';
 import profanityFilter from '../middleware/profanityFilter';
 
 export default (app, db, checkJwt, updates) => {
@@ -17,30 +16,34 @@ export default (app, db, checkJwt, updates) => {
     const checkUser = (user, match) => match && user === match.user;
 
     app.get('/match/:id', (req, res) => {
-        util.promisify(db.get)(req.params.id)
+        db.get(req.params.id)
             .then(result => res.send(result))
             .catch(err => handleError(err, req, res));
     });
 
     app.get('/match', (req, res) => {
-        util.promisify(db.getAll)(req.query)
-            .then(result => res.send(result.map(item => ({
-                id: item.id,
-                date: item.match.date,
-                user: item.match.user,
-                homeTeam: item.match.homeTeam.name,
-                awayTeam: item.match.awayTeam.name,
-                status: item.match.status,
-                version: item.version || 0,
-                lastEvent: item.lastEvent,
-            }))))
+        db.getAll(req.query)
+            .then(result =>
+                res.send(
+                    result.map(item => ({
+                        id: item.id,
+                        date: item.match.date,
+                        user: item.match.user,
+                        homeTeam: item.match.homeTeam.name,
+                        awayTeam: item.match.awayTeam.name,
+                        status: item.match.status,
+                        version: item.version || 0,
+                        lastEvent: item.lastEvent,
+                    })),
+                ),
+            )
             .catch(err => handleError(err, req, res));
     });
 
     app.post('/match', checkJwt, profanityFilter, (req, res) => {
         const user = getUser(req);
-        util.promisify(db.add)(req.body, user)
-            .then((result) => {
+        db.add(req.body, user)
+            .then(result => {
                 db.recordUserTeams(user, [req.body.match.homeTeam, req.body.match.awayTeam]);
                 res.send(result);
                 updates.matchAdded(result);
@@ -49,12 +52,12 @@ export default (app, db, checkJwt, updates) => {
     });
 
     app.put('/match/:id', checkJwt, profanityFilter, (req, res) => {
-        util.promisify(db.get)(req.params.id)
-            .then((getResult) => {
+        db.get(req.params.id)
+            .then(getResult => {
                 if (!checkUser(getUser(req), getResult.match)) {
                     res.sendStatus(401);
                 } else {
-                    util.promisify(db.update)(req.params.id, req.body);
+                    db.update(req.params.id, req.body);
                     updates.matchUpdated(req.body);
                 }
             })
@@ -63,12 +66,12 @@ export default (app, db, checkJwt, updates) => {
     });
 
     app.delete('/match/:id', checkJwt, (req, res) => {
-        util.promisify(db.get)(req.params.id)
-            .then((result) => {
+        db.get(req.params.id)
+            .then(result => {
                 if (!checkUser(getUser(req), result.match)) {
                     res.sendStatus(401);
                 } else {
-                    util.promisify(db.remove)(req.params.id);
+                    db.remove(req.params.id);
                 }
             })
             .then(() => res.sendStatus(204))

@@ -1,5 +1,4 @@
 import jwtDecode from 'jwt-decode';
-import util from 'util';
 
 export default (app, db, checkJwt) => {
     const handleError = (err, req, res) => {
@@ -14,7 +13,7 @@ export default (app, db, checkJwt) => {
     const getUser = req => jwtDecode(req.headers.authorization.split(' ')[1]).sub;
 
     app.get('/user/teams', checkJwt, (req, res) => {
-        util.promisify(db.getUserTeams)(getUser(req))
+        db.getUserTeams(getUser(req))
             .then(result => res.send(result))
             .catch(err => handleError(err, req, res));
     });
