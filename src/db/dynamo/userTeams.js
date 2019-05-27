@@ -12,7 +12,7 @@ const userTeams = () => {
                     return;
                 }
 
-                if (item) {
+                if (item && item.Item) {
                     const params = {
                         TableName: userTeamsTable,
                         Key: {
@@ -20,7 +20,14 @@ const userTeams = () => {
                         },
                         UpdateExpression: 'set teams = :teams',
                         ExpressionAttributeValues: {
-                            ':teams': { S: JSON.stringify([...JSON.parse(item.Item.teams), ...teams]) },
+                            ':teams': {
+                                S: JSON.stringify([
+                                    ...JSON.parse(item.Item.teams.S).filter(
+                                        t => !teams.map(team => team.name).find(tn => tn === t.name),
+                                    ),
+                                    ...teams,
+                                ]),
+                            },
                         },
                     };
 
@@ -47,11 +54,11 @@ const userTeams = () => {
         new Promise(resolve => {
             const db = new aws.DynamoDB({ apiVersion: '2012-10-08' });
             db.getItem({ TableName: userTeamsTable, Key: { userId: { S: user } } }, (err, item) => {
-                resolve({ user, teams: item ? JSON.parse(item.Item.teams) : [] });
+                resolve({ user, teams: item ? JSON.parse(item.Item.teams.S) : [] });
             });
         });
 
     return { recordUserTeams, getUserTeams };
 };
 
-export default userTeams;
+export default userTeams();

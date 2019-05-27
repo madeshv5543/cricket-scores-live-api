@@ -9,7 +9,7 @@ const addMatch = db => async event => {
         const user = getUser(event);
         const body = profanityFilter(JSON.parse(event.body));
         const result = await db.add(body, user);
-        await db.recordUserTeams(user, [event.body.match.homeTeam, event.body.match.awayTeam]);
+        await db.recordUserTeams(user, [body.match.homeTeam, body.match.awayTeam]);
 
         return {
             statusCode: 200,
