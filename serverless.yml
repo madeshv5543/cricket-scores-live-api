@@ -201,9 +201,21 @@ resources:
                 AttributeDefinitions:
                     - AttributeName: connectionId
                       AttributeType: S
+                    - AttributeName: matchId
+                      AttributeType: S
                 KeySchema:
                     - AttributeName: connectionId
                       KeyType: HASH
                 ProvisionedThroughput:
                     ReadCapacityUnits: 5
                     WriteCapacityUnits: 5
+                GlobalSecondaryIndexes:
+                    - IndexName: matchIndex
+                      KeySchema:
+                          - AttributeName: matchId
+                            KeyType: HASH
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5

@@ -10,6 +10,7 @@ const connections = () => {
                 TableName: connectionsTable,
                 Item: {
                     connectionId: { S: id },
+                    matchId: { S: '-' },
                     url: { S: url },
                 },
             };
@@ -42,21 +43,22 @@ const connections = () => {
             });
         });
 
-    const setMatchIds = (id, matchIds) =>
+    const setMatchId = (id, matchId) =>
         new Promise((resolve, reject) => {
             const params = {
                 TableName: connectionsTable,
                 Key: {
                     connectionId: { S: id },
                 },
-                UpdateExpression: 'set matchIds = :matchIds',
+                UpdateExpression: 'set matchId = :matchId',
                 ExpressionAttributeValues: {
-                    ':matchIds': { SS: matchIds },
+                    ':matchId': { S: matchId },
                 },
             };
             const db = new aws.DynamoDB({ apiVersion: '2012-10-08' });
             db.updateItem(params, err => {
                 if (err) {
+                    console.log(err);
                     reject(err);
                     return;
                 }
@@ -68,7 +70,7 @@ const connections = () => {
     return {
         addConnection,
         removeConnection,
-        setMatchIds,
+        setMatchId,
     };
 };
 

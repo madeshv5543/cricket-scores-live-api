@@ -4,7 +4,7 @@ import dynamoDb from '../../db/dynamo';
 const onMatchId = db => async event => {
     try {
         const { matchId } = JSON.parse(event.body);
-        await db.setMatchIds(event.requestContext.connectionId, [matchId]);
+        await db.setMatchId(event.requestContext.connectionId, matchId);
         return {
             statusCode: 200,
             body: 'Updated',
