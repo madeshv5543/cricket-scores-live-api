@@ -17,7 +17,8 @@ const putMatch = db => async (event, context) => {
             };
         }
 
-        if (!checkUser(getUser(event), getResult.match)) {
+        const user = getUser(event);
+        if (!checkUser(user, getResult.match)) {
             return {
                 statusCode: 401,
             };

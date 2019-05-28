@@ -67,7 +67,7 @@ const connections = () => {
         });
 
     const getForMatch = matchId =>
-        new Promise((resolve, reject) => {
+        new Promise(resolve => {
             const db = new aws.DynamoDB({ apiVersion: '2012-10-08' });
             db.query(
                 {
@@ -80,7 +80,6 @@ const connections = () => {
                 },
                 (err, data) => {
                     if (err) {
-                        console.log(err);
                         resolve([]);
                     } else {
                         resolve(

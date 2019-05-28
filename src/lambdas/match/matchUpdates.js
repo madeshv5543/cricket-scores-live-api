@@ -22,7 +22,6 @@ const matchUpdate = db => async event => {
 
         return {
             statusCode: 200,
-            body: JSON.stringify(result),
         };
     } catch (err) {
         return handleError(err, event);
