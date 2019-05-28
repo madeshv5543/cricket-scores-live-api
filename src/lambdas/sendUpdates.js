@@ -7,70 +7,85 @@ const newMatchMsg = 'newmatch';
 
 export default db => {
     ensureApiGatewayManagementApi(aws);
-    const apiGateway = new aws.ApiGatewayManagementApi({
-        apiVersion: '2018-11-29',
-    });
 
     const matchUpdate = async item => {
+        const scorecardUpdate = update => {
+            const apiGateway = new aws.ApiGatewayManagementApi({
+                apiVersion: '2018-11-29',
+                endpoint: update.url,
+            });
+
+            return apiGateway
+                .postToConnection({
+                    ConnectionId: update.connectionId,
+                    Data: JSON.stringify({ action: scorecardUpdateMsg, match: item.match, lastEvent: item.lastEvent }),
+                })
+                .promise();
+        };
+
+        const statusUpdate = update => {
+            const apiGateway = new aws.ApiGatewayManagementApi({
+                apiVersion: '2018-11-29',
+                endpoint: update.url,
+            });
+
+            return apiGateway
+                .postToConnection({
+                    ConnectionId: update.connectionId,
+                    Data: JSON.stringify({
+                        action: matchUpdatesMsg,
+                        updates: [{ id: item.id, status: item.match.status, lastEvent: item.lastEvent }],
+                    }),
+                })
+                .promise();
+        };
+
         try {
             const scorecardUpdates = await db.getForMatch(item.id);
             const matchUpdates = await db.getForAllMatches();
 
-            scorecardUpdates.forEach(update => {
-                apiGateway.endpoint = update.url;
-                apiGateway.postToConnection({
-                    ConnectionId: update.connectionId,
-                    Data: JSON.stringify({ action: scorecardUpdateMsg, match: item.match, lastEvent: item.lastEvent }),
-                });
-            });
+            const scorecards = scorecardUpdates.map(scorecardUpdate);
+            const matches = matchUpdates.map(statusUpdate);
 
-            matchUpdates.forEach(update => {
-                apiGateway.endpoint = update.url;
-                apiGateway.postToConnection({
-                    ConnectionId: update.connectionId,
-                    Data: JSON.stringify({
-                        action: matchUpdatesMsg,
-                        updates: [{ id: item.match.id, status: item.match.status, lastEvent: item.lastEvent }],
-                    }),
-                });
-            });
+            await Promise.all([...scorecards, ...matches]);
         } catch (err) {
             console.error(err);
         }
     };
 
-    const matchAdd = async item =>
-        new Promise(async resolve => {
-            try {
-                const matchUpdates = await db.getForAllMatches();
-                matchUpdates.forEach(update => {
-                    apiGateway.endpoint = update.url;
-                    apiGateway.postToConnection(
-                        {
-                            ConnectionId: update.connectionId,
-                            Data: JSON.stringify({
-                                action: newMatchMsg,
-                                match: {
-                                    id: item.id,
-                                    date: item.match.date,
-                                    user: item.match.user,
-                                    homeTeam: item.match.homeTeam.name,
-                                    awayTeam: item.match.awayTeam.name,
-                                    status: item.match.status,
-                                    version: item.version || 0,
-                                    lastEvent: item.lastEvent,
-                                },
-                            }),
-                        },
-                        () => {
-                            resolve();
-                        },
-                    );
+    const matchAdd = async item => {
+        try {
+            const matchUpdates = await db.getForAllMatches();
+            const updates = matchUpdates.map(update => {
+                const apiGateway = new aws.ApiGatewayManagementApi({
+                    apiVersion: '2018-11-29',
+                    endpoint: update.url,
                 });
-            } catch (err) {
-                console.error(err);
-            }
-        });
+
+                return apiGateway
+                    .postToConnection({
+                        ConnectionId: update.connectionId,
+                        Data: JSON.stringify({
+                            action: newMatchMsg,
+                            match: {
+                                id: item.id,
+                                date: item.match.date,
+                                user: item.match.user,
+                                homeTeam: item.match.homeTeam.name,
+                                awayTeam: item.match.awayTeam.name,
+                                status: item.match.status,
+                                version: item.version || 0,
+                                lastEvent: item.lastEvent,
+                            },
+                        }),
+                    })
+                    .promise();
+            });
+            await Promise.all(updates);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     return { matchUpdate, matchAdd };
 };

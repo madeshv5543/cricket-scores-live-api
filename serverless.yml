@@ -44,7 +44,7 @@ functions:
         package:
             artifact: ./lambdas-dist/get-match/get-match.zip
 
-    authoriser:
+    authoriser-post:
         handler: index.handler
         package:
             artifact: ./lambdas-dist/authoriser/authoriser.zip
@@ -56,9 +56,14 @@ functions:
                   path: match
                   method: post
                   cors: true
-                  authorizer: authoriser
+                  authorizer: authoriser-post
         package:
             artifact: ./lambdas-dist/add-match/add-match.zip
+
+    authoriser-put:
+        handler: index.handler
+        package:
+            artifact: ./lambdas-dist/authoriser/authoriser.zip
 
     put-match:
         handler: putMatch.handler
@@ -67,9 +72,14 @@ functions:
                   path: match/{id}
                   method: put
                   cors: true
-                  authorizer: authoriser
+                  authorizer: authoriser-put
         package:
             artifact: ./lambdas-dist/put-match/put-match.zip
+
+    authoriser-delete:
+        handler: index.handler
+        package:
+            artifact: ./lambdas-dist/authoriser/authoriser.zip
 
     delete-match:
         handler: deleteMatch.handler
@@ -78,7 +88,7 @@ functions:
                   path: match/{id}
                   method: delete
                   cors: true
-                  authorizer: authoriser
+                  authorizer: authoriser-delete
         package:
             artifact: ./lambdas-dist/delete-match/delete-match.zip
 
