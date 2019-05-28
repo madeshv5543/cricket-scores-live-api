@@ -58,7 +58,6 @@ const connections = () => {
             const db = new aws.DynamoDB({ apiVersion: '2012-10-08' });
             db.updateItem(params, err => {
                 if (err) {
-                    console.log(err);
                     reject(err);
                     return;
                 }
@@ -67,10 +66,42 @@ const connections = () => {
             });
         });
 
+    const getForMatch = matchId =>
+        new Promise((resolve, reject) => {
+            const db = new aws.DynamoDB({ apiVersion: '2012-10-08' });
+            db.query(
+                {
+                    TableName: connectionsTable,
+                    IndexName: 'matchIndex',
+                    KeyConditionExpression: 'matchId = :matchId',
+                    ExpressionAttributeValues: {
+                        ':matchId': { S: matchId },
+                    },
+                },
+                (err, data) => {
+                    if (err) {
+                        console.log(err);
+                        resolve([]);
+                    } else {
+                        resolve(
+                            data.Items.map(item => ({
+                                connectionId: item.connectionId.S,
+                                url: item.url.S,
+                            })),
+                        );
+                    }
+                },
+            );
+        });
+
+    const getForAllMatches = () => getForMatch('-');
+
     return {
         addConnection,
         removeConnection,
         setMatchId,
+        getForMatch,
+        getForAllMatches,
     };
 };
 

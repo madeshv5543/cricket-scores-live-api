@@ -9,6 +9,10 @@ provider:
           Action:
               - dynamodb:*
           Resource: '*'
+        - Effect: Allow
+          Action:
+              - SNS:Publish
+          Resource: '*'
 
 package:
     individually: true
@@ -123,6 +127,13 @@ functions:
                   routeKey: matchids
         package:
             artifact: ./lambdas-dist/sockets/sockets.zip
+
+    match-updates:
+        handler: matchUpdates.handler
+        events:
+            - sns: match-update
+        package:
+            artifact: ./lambdas-dist/match-updates/match-updates.zip
 
 resources:
     Resources:

@@ -16,8 +16,9 @@
     "build-delete-match": "rimraf ./lambdas-dist/delete-match && webpack --config ./webpack.config.deleteMatch.js --hide-modules --progress --colors && node create-zip.js delete-match",
     "build-get-teams": "rimraf ./lambdas-dist/get-teams && webpack --config ./webpack.config.getTeams.js --hide-modules --progress --colors && node create-zip.js get-teams",
     "build-authoriser": "rimraf ./lambdas-dist/authoriser && webpack --config ./webpack.config.authoriser.js --hide-modules --progress --colors && node create-zip.js authoriser",
+    "build-match-updates": "rimraf ./lambdas-dist/match-updates && webpack --config ./webpack.config.matchUpdates.js --hide-modules --progress --colors && node create-zip.js match-updates",
     "build-sockets": "rimraf ./lambdas-dist/sockets && webpack --config ./webpack.config.sockets.js --hide-modules --progress --colors && node create-zip.js sockets",
-    "build-lambdas": "npm run build-get-matches && npm run build-get-match && npm run build-add-match && npm run build-put-match && npm run build-delete-match && npm run build-get-teams && npm run build-authoriser && npm run build-sockets",
+    "build-lambdas": "npm run build-get-matches && npm run build-get-match && npm run build-add-match && npm run build-put-match && npm run build-delete-match && npm run build-get-teams && npm run build-authoriser && npm run build-sockets && npm run build-match-updates",
     "deploy-lambdas": "npm run build-lambdas && serverless deploy",
     "serve": "node dist/server.js",
     "lint": "node_modules/.bin/esw src --ext .js",
@@ -34,6 +35,7 @@
   },
   "homepage": "https://github.com/ChrisDobby/cricket-scores-live-api#readme",
   "dependencies": {
+    "aws-apigatewaymanagementapi": "^0.1.0",
     "aws-sdk": "^2.459.0",
     "bad-words": "^3.0.0",
     "body-parser": "^1.18.3",

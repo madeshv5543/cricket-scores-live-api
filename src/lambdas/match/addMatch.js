@@ -1,15 +1,25 @@
+import * as aws from 'aws-sdk';
 import dynamo from '../../db/dynamo';
 import inMemoryDb from '../../db/inMemory';
 import handleError from '../handleError';
 import getUser from '../getUser';
 import profanityFilter from '../profanityFilter';
 
-const addMatch = db => async event => {
+const addMatch = db => async (event, context) => {
     try {
         const user = getUser(event);
         const body = profanityFilter(JSON.parse(event.body));
         const result = await db.add(body, user);
-        await db.recordUserTeams(user, [body.match.homeTeam, body.match.awayTeam]);
+
+        const arnParts = context.invokedFunctionArn.split(':');
+        const sns = new aws.SNS();
+        const topic = `arn:aws:sns:${arnParts[3]}:${arnParts[4]}:match-update`;
+        await sns
+            .publish({
+                TopicArn: topic,
+                Message: JSON.stringify({ user, add: result }),
+            })
+            .promise();
 
         return {
             statusCode: 200,
