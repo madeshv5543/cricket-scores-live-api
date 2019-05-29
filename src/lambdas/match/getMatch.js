@@ -1,5 +1,6 @@
 import dynamo from '../../db/dynamo';
 import inMemoryDb from '../../db/inMemory';
+import withCorsHeaders from '../withCorsHeaders';
 
 const getMatch = db => async event => {
     const { id } = event.pathParameters;
@@ -12,14 +13,10 @@ const getMatch = db => async event => {
         };
     }
 
-    return {
+    return withCorsHeaders({
         statusCode: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': true,
-        },
         body: JSON.stringify(match),
-    };
+    });
 };
 
 exports.handler = getMatch(process.env.IN_MEMORY ? inMemoryDb : dynamo);

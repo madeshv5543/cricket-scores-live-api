@@ -4,6 +4,7 @@ import inMemoryDb from '../../db/inMemory';
 import handleError from '../handleError';
 import getUser from '../getUser';
 import profanityFilter from '../profanityFilter';
+import withCorsHeaders from '../withCorsHeaders';
 
 const addMatch = db => async (event, context) => {
     try {
@@ -21,14 +22,10 @@ const addMatch = db => async (event, context) => {
             })
             .promise();
 
-        return {
+        return withCorsHeaders({
             statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Credentials': true,
-            },
             body: JSON.stringify(result),
-        };
+        });
     } catch (err) {
         return handleError(err, event);
     }

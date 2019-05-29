@@ -2,18 +2,15 @@ import util from 'util';
 import dynamo from '../../db/dynamo';
 import inMemoryDb from '../../db/inMemory';
 import getUser from '../getUser';
+import withCorsHeaders from '../withCorsHeaders';
 
 const getMatches = db => async event => {
     const teams = await util.promisify(db.getUserTeams)(getUser(event));
 
-    return {
+    return withCorsHeaders({
         statusCode: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': true,
-        },
         body: JSON.stringify(teams),
-    };
+    });
 };
 
 exports.handler = getMatches(process.env.IN_MEMORY ? inMemoryDb : dynamo);

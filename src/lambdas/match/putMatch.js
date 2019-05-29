@@ -5,27 +5,24 @@ import handleError from '../handleError';
 import getUser from '../getUser';
 import checkUser from '../checkUser';
 import profanityFilter from '../profanityFilter';
+import withCorsHeaders from '../withCorsHeaders';
 
 const putMatch = db => async (event, context) => {
     try {
         const { id } = event.pathParameters;
         const getResult = await db.get(id);
         if (!getResult) {
-            return {
+            return withCorsHeaders({
                 statusCode: 404,
-                headers: {
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Credentials': true,
-                },
                 body: `match with id ${id} not found`,
-            };
+            });
         }
 
         const user = getUser(event);
         if (!checkUser(user, getResult.match)) {
-            return {
+            return withCorsHeaders({
                 statusCode: 401,
-            };
+            });
         }
         const body = profanityFilter(JSON.parse(event.body));
         const result = await db.update(id, body);
@@ -40,14 +37,10 @@ const putMatch = db => async (event, context) => {
             })
             .promise();
 
-        return {
+        return withCorsHeaders({
             statusCode: 200,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Credentials': true,
-            },
             body: JSON.stringify(result),
-        };
+        });
     } catch (err) {
         return handleError(err, event);
     }

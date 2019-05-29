@@ -3,6 +3,7 @@ import inMemoryDb from '../../db/inMemory';
 import handleError from '../handleError';
 import getUser from '../getUser';
 import checkUser from '../checkUser';
+import withCorsHeaders from '../withCorsHeaders';
 
 const deleteMatch = db => async event => {
     try {
@@ -22,13 +23,9 @@ const deleteMatch = db => async event => {
 
         await db.remove(id);
 
-        return {
+        return withCorsHeaders({
             statusCode: 204,
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Credentials': true,
-            },
-        };
+        });
     } catch (err) {
         return handleError(err, event);
     }
