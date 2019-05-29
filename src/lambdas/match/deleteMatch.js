@@ -24,6 +24,10 @@ const deleteMatch = db => async event => {
 
         return {
             statusCode: 204,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+            },
         };
     } catch (err) {
         return handleError(err, event);

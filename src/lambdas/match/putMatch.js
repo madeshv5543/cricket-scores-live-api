@@ -13,6 +13,10 @@ const putMatch = db => async (event, context) => {
         if (!getResult) {
             return {
                 statusCode: 404,
+                headers: {
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': true,
+                },
                 body: `match with id ${id} not found`,
             };
         }
@@ -38,6 +42,10 @@ const putMatch = db => async (event, context) => {
 
         return {
             statusCode: 200,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true,
+            },
             body: JSON.stringify(result),
         };
     } catch (err) {
