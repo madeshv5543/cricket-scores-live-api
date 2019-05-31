@@ -18,7 +18,10 @@ export default db => {
             return apiGateway
                 .postToConnection({
                     ConnectionId: update.connectionId,
-                    Data: JSON.stringify({ action: scorecardUpdateMsg, match: item.match, lastEvent: item.lastEvent }),
+                    Data: JSON.stringify({
+                        action: scorecardUpdateMsg,
+                        updates: { match: item.match, lastEvent: item.lastEvent },
+                    }),
                 })
                 .promise();
         };
@@ -67,15 +70,17 @@ export default db => {
                         ConnectionId: update.connectionId,
                         Data: JSON.stringify({
                             action: newMatchMsg,
-                            match: {
-                                id: item.id,
-                                date: item.match.date,
-                                user: item.match.user,
-                                homeTeam: item.match.homeTeam.name,
-                                awayTeam: item.match.awayTeam.name,
-                                status: item.match.status,
-                                version: item.version || 0,
-                                lastEvent: item.lastEvent,
+                            updates: {
+                                match: {
+                                    id: item.id,
+                                    date: item.match.date,
+                                    user: item.match.user,
+                                    homeTeam: item.match.homeTeam.name,
+                                    awayTeam: item.match.awayTeam.name,
+                                    status: item.match.status,
+                                    version: item.version || 0,
+                                    lastEvent: item.lastEvent,
+                                },
                             },
                         }),
                     })

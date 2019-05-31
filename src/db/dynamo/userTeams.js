@@ -54,7 +54,7 @@ const userTeams = () => {
         new Promise(resolve => {
             const db = new aws.DynamoDB({ apiVersion: '2012-10-08' });
             db.getItem({ TableName: userTeamsTable, Key: { userId: { S: user } } }, (err, item) => {
-                resolve({ user, teams: item ? JSON.parse(item.Item.teams.S) : [] });
+                resolve({ user, teams: item && item.Item ? JSON.parse(item.Item.teams.S) : [] });
             });
         });
 

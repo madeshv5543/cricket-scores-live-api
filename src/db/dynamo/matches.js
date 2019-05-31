@@ -6,6 +6,8 @@ const matchesTable = 'cricket-scores-matches';
 
 export default getDate => {
     const queryParams = getQueryParams(getDate);
+    const negativeToUndefined = num => (num < 0 ? undefined : num);
+
     const add = (body, user) =>
         new Promise((resolve, reject) => {
             const db = new aws.DynamoDB({ apiVersion: '2012-10-08' });
@@ -17,11 +19,15 @@ export default getDate => {
                 userId__complete: { S: `${user}__${body.match.complete.toString().toUpperCase()}` },
                 matchDate: { N: new Date(body.match.date).getTime().toString() },
                 version: { N: body.version.toString() },
-                currentBatterIndex: { N: body.currentBatterIndex.toString() },
-                currentBowlerIndex: { N: body.currentBowlerIndex.toString() },
+                currentBatterIndex: {
+                    N: (typeof body.currentBatterIndex === 'undefined' ? -1 : body.currentBatterIndex).toString(),
+                },
+                currentBowlerIndex: {
+                    N: (typeof body.currentBowlerIndex === 'undefined' ? -1 : body.currentBowlerIndex).toString(),
+                },
                 progress: { S: JSON.stringify(body.match) },
             };
-            if (body.lastEvent) item.lastEvent = body.lastEvent;
+            if (body.lastEvent) item.lastEvent = { S: body.lastEvent };
 
             const params = {
                 TableName: matchesTable,
@@ -48,8 +54,12 @@ export default getDate => {
                 ':complete': { S: body.match.complete.toString().toUpperCase() },
                 ':progress': { S: JSON.stringify(body.match) },
                 ':version': { N: body.version.toString() },
-                ':currentBatterIndex': { N: body.currentBatterIndex.toString() },
-                ':currentBowlerIndex': { N: body.currentBowlerIndex.toString() },
+                ':currentBatterIndex': {
+                    N: (typeof body.currentBatterIndex === 'undefined' ? -1 : body.currentBatterIndex).toString(),
+                },
+                ':currentBowlerIndex': {
+                    N: (typeof body.currentBowlerIndex === 'undefined' ? -1 : body.currentBowlerIndex).toString(),
+                },
                 ':userId__complete': { S: `${body.match.user}__${body.match.complete.toString().toUpperCase()}` },
             };
             if (body.lastEvent) values[':lastEvent'] = { S: body.lastEvent };
@@ -83,7 +93,7 @@ export default getDate => {
                     data.Items.map(item => ({ ...item, match: JSON.parse(item.progress.S) })).map(item => ({
                         id: item.id.S,
                         date: item.match.date,
-                        user: item.match.userId,
+                        user: item.userId.S,
                         homeTeam: item.match.homeTeam.name,
                         awayTeam: item.match.awayTeam.name,
                         status: item.match.status,
@@ -120,9 +130,9 @@ export default getDate => {
                               id,
                               match: JSON.parse(item.Item.progress.S),
                               version: Number(item.Item.version.N),
-                              currentBatterIndex: Number(item.Item.currentBatterIndex.N),
-                              currentBowlerIndex: Number(item.Item.currentBowlerIndex.N),
-                              lastEvent: item.Item.lastEvent,
+                              currentBatterIndex: negativeToUndefined(Number(item.Item.currentBatterIndex.N)),
+                              currentBowlerIndex: negativeToUndefined(Number(item.Item.currentBowlerIndex.N)),
+                              lastEvent: item.Item.lastEvent ? item.Item.lastEvent.S : undefined,
                           }
                         : undefined,
                 );

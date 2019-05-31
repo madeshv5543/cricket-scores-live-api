@@ -2,11 +2,11 @@ import dynamo from '../../db/dynamo';
 import inMemoryDb from '../../db/inMemory';
 import withCorsHeaders from '../withCorsHeaders';
 import handleError from '../handleError';
+import toLowerCaseProps from '../toLowerCaseProps';
 
 const getMatches = db => async event => {
-    console.log(event);
     try {
-        const matches = await db.getAll(event.queryStringParameters || {});
+        const matches = await db.getAll(toLowerCaseProps(event.queryStringParameters || {}));
 
         return withCorsHeaders({
             statusCode: 200,

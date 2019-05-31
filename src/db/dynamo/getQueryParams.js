@@ -62,8 +62,8 @@ export default getDate => query => {
     };
 
     const withUser = addUser(initialParams, query);
-    const withInProgress = addCompletionWithDate(withUser, query.inProgress, '>');
-    const withExpectedComplete = addCompletionWithDate(withInProgress, query.expectedComplete, '<');
+    const withInProgress = addCompletionWithDate(withUser, query.inprogress, '>');
+    const withExpectedComplete = addCompletionWithDate(withInProgress, query.expectedcomplete, '<');
     const withComplete = addComplete(withExpectedComplete);
 
     return withComplete;
