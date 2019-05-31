@@ -9,6 +9,10 @@ provider:
           Action:
               - dynamodb:*
           Resource: '*'
+        - Effect: Allow
+          Action:
+              - SNS:Publish
+          Resource: '*'
 
 package:
     individually: true
@@ -40,7 +44,7 @@ functions:
         package:
             artifact: ./lambdas-dist/get-match/get-match.zip
 
-    authoriser:
+    authoriser-post:
         handler: index.handler
         package:
             artifact: ./lambdas-dist/authoriser/authoriser.zip
@@ -52,9 +56,14 @@ functions:
                   path: match
                   method: post
                   cors: true
-                  authorizer: authoriser
+                  authorizer: authoriser-post
         package:
             artifact: ./lambdas-dist/add-match/add-match.zip
+
+    authoriser-put:
+        handler: index.handler
+        package:
+            artifact: ./lambdas-dist/authoriser/authoriser.zip
 
     put-match:
         handler: putMatch.handler
@@ -63,9 +72,14 @@ functions:
                   path: match/{id}
                   method: put
                   cors: true
-                  authorizer: authoriser
+                  authorizer: authoriser-put
         package:
             artifact: ./lambdas-dist/put-match/put-match.zip
+
+    authoriser-delete:
+        handler: index.handler
+        package:
+            artifact: ./lambdas-dist/authoriser/authoriser.zip
 
     delete-match:
         handler: deleteMatch.handler
@@ -74,7 +88,7 @@ functions:
                   path: match/{id}
                   method: delete
                   cors: true
-                  authorizer: authoriser
+                  authorizer: authoriser-delete
         package:
             artifact: ./lambdas-dist/delete-match/delete-match.zip
 
@@ -123,3 +137,106 @@ functions:
                   routeKey: matchids
         package:
             artifact: ./lambdas-dist/sockets/sockets.zip
+
+    match-updates:
+        handler: matchUpdates.handler
+        events:
+            - sns: match-update
+        package:
+            artifact: ./lambdas-dist/match-updates/match-updates.zip
+
+resources:
+    Resources:
+        DynamoDbMatches:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: cricket-scores-matches
+                AttributeDefinitions:
+                    - AttributeName: id
+                      AttributeType: S
+                    - AttributeName: userId
+                      AttributeType: S
+                    - AttributeName: complete
+                      AttributeType: S
+                    - AttributeName: userId__complete
+                      AttributeType: S
+                    - AttributeName: matchDate
+                      AttributeType: N
+                KeySchema:
+                    - AttributeName: id
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 5
+                    WriteCapacityUnits: 5
+                GlobalSecondaryIndexes:
+                    - IndexName: userIndex
+                      KeySchema:
+                          - AttributeName: userId
+                            KeyType: HASH
+                          - AttributeName: matchDate
+                            KeyType: RANGE
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5
+                    - IndexName: completeIndex
+                      KeySchema:
+                          - AttributeName: complete
+                            KeyType: HASH
+                          - AttributeName: matchDate
+                            KeyType: RANGE
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5
+                    - IndexName: userCompleteIndex
+                      KeySchema:
+                          - AttributeName: userId__complete
+                            KeyType: HASH
+                          - AttributeName: matchDate
+                            KeyType: RANGE
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5
+        DynamoDbUserTeams:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: cricket-scores-user-teams
+                AttributeDefinitions:
+                    - AttributeName: userId
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: userId
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 5
+                    WriteCapacityUnits: 5
+        DynamoDbConnections:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: cricket-scores-connections
+                AttributeDefinitions:
+                    - AttributeName: connectionId
+                      AttributeType: S
+                    - AttributeName: matchId
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: connectionId
+                      KeyType: HASH
+                ProvisionedThroughput:
+                    ReadCapacityUnits: 5
+                    WriteCapacityUnits: 5
+                GlobalSecondaryIndexes:
+                    - IndexName: matchIndex
+                      KeySchema:
+                          - AttributeName: matchId
+                            KeyType: HASH
+                      Projection:
+                          ProjectionType: ALL
+                      ProvisionedThroughput:
+                          ReadCapacityUnits: 5
+                          WriteCapacityUnits: 5

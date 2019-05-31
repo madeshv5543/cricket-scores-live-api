@@ -1,4 +1,5 @@
 import { MongoClient, ObjectID } from 'mongodb';
+import util from 'util';
 
 const maxDaysForMatch = 6;
 /* eslint-disable no-underscore-dangle */
@@ -51,24 +52,26 @@ export default (connection, getDate) => {
         return result;
     };
 
-    const add = (match, user, callback) =>
+    const add = util.promisify((match, user, callback) =>
         !db
             ? callback(undefined, undefined)
             : db
                   .collection('matches')
                   .insertOne({ ...match, match: { ...matchWithDate(match.match), user } }, (err, result) =>
                       callback(err, err ? undefined : { ...result.ops[0], id: result.ops[0]._id }),
-                  );
+                  ),
+    );
 
-    const getAll = (query, callback) =>
+    const getAll = util.promisify((query, callback) =>
         !db
             ? callback(undefined, [])
             : db
                   .collection('matches')
                   .find(queryParams(query))
-                  .toArray((err, result) => callback(err, err ? [] : result.map(item => ({ ...item, id: item._id }))));
+                  .toArray((err, result) => callback(err, err ? [] : result.map(item => ({ ...item, id: item._id })))),
+    );
 
-    const get = (id, callback) =>
+    const get = util.promisify((id, callback) =>
         !db
             ? callback(undefined, undefined)
             : db
@@ -78,9 +81,10 @@ export default (connection, getDate) => {
                           item === null ? new Error('notfound') : err,
                           err || item === null ? undefined : { ...item, id: item._id },
                       ),
-                  );
+                  ),
+    );
 
-    const update = (id, match, callback) => {
+    const update = util.promisify((id, match, callback) => {
         if (!db) {
             callback(undefined, undefined);
         }
@@ -103,18 +107,19 @@ export default (connection, getDate) => {
                 callback(err, undefined);
             }
         });
-    };
+    });
 
-    const remove = (id, callback) =>
+    const remove = util.promisify((id, callback) =>
         !db
             ? callback(undefined, undefined)
             : db
                   .collection('matches')
                   .deleteOne({ _id: new ObjectID(id) }, (err, res) =>
                       callback(res.deletedCount < 1 ? new Error('notfound') : err, true),
-                  );
+                  ),
+    );
 
-    const recordUserTeams = (user, teams) => {
+    const recordUserTeams = util.promisify((user, teams) => {
         if (!db) return;
         db.collection('userTeams')
             .find({ user })
@@ -145,9 +150,9 @@ export default (connection, getDate) => {
                     );
                 }
             });
-    };
+    });
 
-    const getUserTeams = (user, callback) =>
+    const getUserTeams = util.promisify((user, callback) =>
         !db
             ? callback(undefined, undefined)
             : db
@@ -157,7 +162,8 @@ export default (connection, getDate) => {
                           item === null ? new Error('notfound') : err,
                           err || item === null ? undefined : { user, teams: item.teams },
                       ),
-                  );
+                  ),
+    );
 
     return {
         add,

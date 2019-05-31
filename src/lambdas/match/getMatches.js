@@ -1,16 +1,20 @@
-import util from 'util';
-import mongoDb from '../../db/mongo';
+import dynamo from '../../db/dynamo';
 import inMemoryDb from '../../db/inMemory';
+import withCorsHeaders from '../withCorsHeaders';
+import handleError from '../handleError';
+import toLowerCaseProps from '../toLowerCaseProps';
 
 const getMatches = db => async event => {
-    const matches = await util.promisify(db.getAll)(event.query);
+    try {
+        const matches = await db.getAll(toLowerCaseProps(event.queryStringParameters || {}));
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify(matches),
-    };
+        return withCorsHeaders({
+            statusCode: 200,
+            body: JSON.stringify(matches),
+        });
+    } catch (err) {
+        return handleError(err, event);
+    }
 };
 
-exports.handler = getMatches(
-    process.env.IN_MEMORY ? inMemoryDb : mongoDb(process.env.MONGO_CONNECTION, () => new Date()),
-);
+exports.handler = getMatches(process.env.IN_MEMORY ? inMemoryDb : dynamo);

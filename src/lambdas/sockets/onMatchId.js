@@ -1,10 +1,11 @@
 import inMemoryDb from '../../db/inMemory';
 import dynamoDb from '../../db/dynamo';
+import toLowerCaseProps from '../toLowerCaseProps';
 
 const onMatchId = db => async event => {
     try {
-        const { matchId } = JSON.parse(event.body);
-        await db.setMatchIds(event.requestContext.connectionId, [matchId]);
+        const { matchid } = toLowerCaseProps(JSON.parse(event.body));
+        await db.setMatchId(event.requestContext.connectionId, matchid);
         return {
             statusCode: 200,
             body: 'Updated',

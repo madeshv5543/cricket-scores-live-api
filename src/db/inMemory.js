@@ -1,4 +1,5 @@
 import uuid from 'uuid/v1';
+import util from 'util';
 
 const inMemoryDb = () => {
     const matches = [];
@@ -6,14 +7,14 @@ const inMemoryDb = () => {
 
     const findMatch = id => matches.find(m => m.id === id);
 
-    const add = (match, callback) => {
+    const add = util.promisify((match, callback) => {
         const id = uuid();
         const matchWithId = { ...match, id };
         matches.push(matchWithId);
         callback(undefined, matchWithId);
-    };
+    });
 
-    const update = (id, match, callback) => {
+    const update = util.promisify((id, match, callback) => {
         const matchToUpdate = findMatch(id);
         if (typeof matchToUpdate === 'undefined') {
             add(match, callback);
@@ -22,9 +23,9 @@ const inMemoryDb = () => {
             matches.push(match);
             callback(undefined, match);
         }
-    };
+    });
 
-    const getAll = (query, callback) =>
+    const getAll = util.promisify((query, callback) =>
         callback(
             undefined,
             matches.filter(
@@ -33,18 +34,19 @@ const inMemoryDb = () => {
                     (!query.inprogress || !item.match.complete) &&
                     (!query.user || query.user === item.match.user),
             ),
-        );
+        ),
+    );
 
-    const get = (id, callback) => {
+    const get = util.promisify((id, callback) => {
         const match = findMatch(id);
         if (typeof match === 'undefined') {
             callback(new Error('notfound'), undefined);
         } else {
             callback(undefined, match);
         }
-    };
+    });
 
-    const remove = (id, callback) => {
+    const remove = util.promisify((id, callback) => {
         const match = findMatch(id);
         if (typeof match === 'undefined') {
             callback(new Error('notfound'), undefined);
@@ -52,7 +54,7 @@ const inMemoryDb = () => {
             matches.splice(matches.indexOf(match), 1);
             callback(undefined);
         }
-    };
+    });
 
     const addConnection = (id, url) =>
         new Promise(resolve => {
