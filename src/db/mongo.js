@@ -6,13 +6,13 @@ const maxDaysForMatch = 6;
 /* eslint-disable no-console */
 export default (connection, getDate) => {
     let db;
-    MongoClient.connect(connection, { useNewUrlParser: true }, (err, database) => {
+    MongoClient.connect(connection, { useNewUrlParser: true,useUnifiedTopology:true }, (err, database) => {
         if (err) {
             console.error(err);
             return;
         }
 
-        db = database.db('cricket-scores-live');
+        db = database.db('scorebook');
     });
 
     const matchWithDate = match => ({
