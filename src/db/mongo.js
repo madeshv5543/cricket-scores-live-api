@@ -7,6 +7,7 @@ const maxDaysForMatch = 6;
 export default (connection, getDate) => {
     let db;
     MongoClient.connect(connection, { useNewUrlParser: true}, (err, database) => {
+        console.log("connection", connection)
         if (err) {
             console.error(err);
             return;
